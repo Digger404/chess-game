@@ -1,9 +1,9 @@
 Chess Game
 
 Usage:
-app filename_coordinates
+app [filename_coordinates]
 
-filename_coordinates:
+coordinates:
 {coordinate_from}{coordinate_to}
 ...
 
