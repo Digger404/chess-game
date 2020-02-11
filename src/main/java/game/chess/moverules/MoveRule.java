@@ -11,7 +11,6 @@ public interface MoveRule {
 
     boolean isApplicable(Board board, Coordinate from, Coordinate to);
 
-
     default Board move(Board board, Coordinate from, Coordinate to) {
         return board.moveOnePiece(Move.of(from, to));
     }

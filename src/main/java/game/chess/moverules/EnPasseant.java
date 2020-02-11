@@ -8,6 +8,8 @@ import game.chess.board.Move;
 
 import java.util.List;
 
+import static game.chess.moverules.MoveRules.sameHorizontal;
+
 public enum EnPasseant implements MoveRule {
     INSTANCE;
 
@@ -26,7 +28,7 @@ public enum EnPasseant implements MoveRule {
         return MoveRules.isOneStepForwardDiagonal(board, from, to) &&
                 isTwoStepsMove(lastMove) &&
                 isAdjacent(from, lastMove) &&
-                MoveRules.sameHorizontal(lastMove.getTo(), from) &&
+                sameHorizontal(lastMove.getTo(), from) &&
                 isPawnColor(board.getPiece(lastMove.getTo()), piece.getColor().change());
     }
 

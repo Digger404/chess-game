@@ -1,6 +1,7 @@
 package game.chess.assertions;
 
 import game.chess.Piece;
+import game.chess.board.Board;
 import game.chess.board.Move;
 import game.chess.game.State;
 import lombok.Getter;
@@ -10,16 +11,17 @@ import java.util.Optional;
 
 @Getter
 @Component
-public class RightColor implements PreAssertion {
-    private final int order = 1;
+class LegalMoveAssertion implements PreAssertion {
+    private final int order = 2;
 
     @Override
     public Optional<RuntimeException> assertLegal(State lastState, Move move) {
 
-        Piece piece = lastState.getBoard().getPiece(move.getFrom());
+        Board board = lastState.getBoard();
+        Piece piece = board.getPiece(move.getFrom());
 
-        if (!piece.getColor().equals(lastState.getBoard().getNextTurn())) {
-            return Optional.of(new IncorrectTurnException("Incorrect color:" + piece.getColor()));
+        if (!piece.legalMove(board, move.getFrom(), move.getTo())) {
+            return Optional.of(new IllegalMoveException("Illegal move:" + move));
         }
 
         return Optional.empty();

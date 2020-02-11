@@ -15,8 +15,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class NotEmptyFromTest {
-    private final NotEmptyFrom notEmptyFrom = new NotEmptyFrom();
+class NotEmptyFromAssertionTest {
+    private final NotEmptyFromAssertion notEmptyFromAssertion = new NotEmptyFromAssertion();
 
     @Mock
     State state;
@@ -29,7 +29,7 @@ class NotEmptyFromTest {
         when(state.getBoard()).thenReturn(board);
         when(board.findPiece(b2c3.getFrom())).thenReturn(Optional.of(Piece.BLACK_PAWN));
 
-        assertThat(notEmptyFrom.assertLegal(state, b2c3)).isEmpty();
+        assertThat(notEmptyFromAssertion.assertLegal(state, b2c3)).isEmpty();
     }
 
     @Test
@@ -38,7 +38,7 @@ class NotEmptyFromTest {
         when(state.getBoard()).thenReturn(board);
         when(board.findPiece(b2c3.getFrom())).thenReturn(Optional.empty());
 
-        assertThat(notEmptyFrom.assertLegal(state, b2c3))
+        assertThat(notEmptyFromAssertion.assertLegal(state, b2c3))
                 .containsInstanceOf(PieceNotFoundException.class);
     }
 }

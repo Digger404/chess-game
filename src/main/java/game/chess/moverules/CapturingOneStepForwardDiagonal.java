@@ -21,6 +21,4 @@ public enum CapturingOneStepForwardDiagonal implements MoveRule {
         return isCapturing(board, to) &&
                 isOneStepForwardDiagonal(board,from,to);
     }
-
-
 }

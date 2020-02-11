@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static game.chess.moverules.MoveRules.isInitialState;
+
 public enum Castling implements MoveRule {
     INSTANCE;
 
@@ -46,6 +48,7 @@ public enum Castling implements MoveRule {
     @Override
     public List<Coordinate> walk(Coordinate from, Coordinate to) {
         Coordinate linkRook = LINK_ROOK.get(to);
+
         return IntStreams.range(from.getZeroIndexColumn(), linkRook.getZeroIndexColumn())
                 .skip(1)
                 .mapToObj(column -> Coordinate.fromZeroIndex(column, from.getZeroIndexRow()))
@@ -57,7 +60,7 @@ public enum Castling implements MoveRule {
     public boolean isApplicable(Board board, Coordinate from, Coordinate to) {
         return !board.isInitialState() &&
                 board.getPiece(from).getFigurine().equals(Figurine.KING) &&
-                MoveRules.isInitialState(board, from) &&
+                isInitialState(board, from) &&
                 MoveRules.sameHorizontal(from, to) &&
                 LINK_ROOK.containsKey(to) &&
                 rookInInitialState(board, LINK_ROOK.get(to)) &&
@@ -71,11 +74,12 @@ public enum Castling implements MoveRule {
     }
 
     private boolean rookInInitialState(Board board, Coordinate linkRook) {
-        return board.findPiece(linkRook).filter(rook -> MoveRules.isInitialState(board, linkRook)).isPresent();
+        return board.findPiece(linkRook).filter(rook -> isInitialState(board, linkRook)).isPresent();
     }
 
     private boolean safeKingPath(Board board, Coordinate from, Coordinate to) {
         Piece.Color kingColor = board.getPiece(from).getColor();
+
         return IntStreams.rangeClosed(from.getZeroIndexColumn(), to.getZeroIndexColumn())
                 .mapToObj(column -> Coordinate.fromZeroIndex(column, from.getZeroIndexRow()))
                 .noneMatch(coordinate -> captureService.canCapture(board, kingColor.change(), coordinate));

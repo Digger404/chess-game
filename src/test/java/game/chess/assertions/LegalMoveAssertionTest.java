@@ -7,39 +7,42 @@ import game.chess.game.State;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
-class RightColorTest {
-    private final RightColor rightColor = new RightColor();
+class LegalMoveAssertionTest {
+    private final LegalMoveAssertion legalMoveAssertion = new LegalMoveAssertion();
 
     @Mock
     State state;
-    @Mock
-    Board board;
+    @Spy
+    Board board = Board.initialState();
 
     @Test
     void assertLegal() {
         Move b2c3 = Move.valueOf("b2c3");
         when(state.getBoard()).thenReturn(board);
         when(board.getPiece(b2c3.getFrom())).thenReturn(Piece.WHITE_PAWN);
-        when(board.getNextTurn()).thenReturn(Piece.Color.WHITE);
+        when(board.findPiece(b2c3.getTo())).thenReturn(Optional.of(Piece.BLACK_PAWN));
 
-        assertThat(rightColor.assertLegal(state, b2c3)).isEmpty();
+        assertThat(legalMoveAssertion.assertLegal(state, b2c3)).isEmpty();
     }
 
     @Test
     void assertIllegal() {
-        Move b2c3 = Move.valueOf("b2c3");
+        Move b2c3 = Move.valueOf("b2b5");
         when(state.getBoard()).thenReturn(board);
         when(board.getPiece(b2c3.getFrom())).thenReturn(Piece.WHITE_PAWN);
-        when(board.getNextTurn()).thenReturn(Piece.Color.BLACK);
+        when(board.historyIterator()).thenReturn(Collections.singleton(Board.initialState()).iterator());
 
-        assertThat(rightColor.assertLegal(state, b2c3))
-                .containsInstanceOf(IncorrectTurnException.class);
+        assertThat(legalMoveAssertion.assertLegal(state, b2c3))
+                .containsInstanceOf(IllegalMoveException.class);
     }
 }

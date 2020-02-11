@@ -63,7 +63,7 @@ public class ChessRunner implements CommandLineRunner, ExitCodeGenerator {
     }
 
 
-    private Integer file(String arg) {
+    private int file(String arg) {
         return inputService.getMoves(arg)
                 .map(this::playGame)
                 .orElseGet(() -> {

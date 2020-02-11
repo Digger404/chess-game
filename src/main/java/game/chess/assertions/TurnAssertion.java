@@ -10,16 +10,16 @@ import java.util.Optional;
 
 @Getter
 @Component
-public class NotEmptyFrom implements PreAssertion {
-    private final int order = 0;
+public class TurnAssertion implements PreAssertion {
+    private final int order = 1;
 
     @Override
     public Optional<RuntimeException> assertLegal(State lastState, Move move) {
 
-        Optional<Piece> piece = lastState.getBoard().findPiece(move.getFrom());
+        Piece piece = lastState.getBoard().getPiece(move.getFrom());
 
-        if (piece.isEmpty()) {
-            return Optional.of(new PieceNotFoundException(move.getFrom()));
+        if (!piece.getColor().equals(lastState.getBoard().getNextTurn())) {
+            return Optional.of(new IncorrectTurnException("Incorrect color:" + piece.getColor()));
         }
 
         return Optional.empty();
