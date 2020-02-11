@@ -18,7 +18,7 @@ public class PreAssertionService {
         this.preAssertions = preAssertions.stream().sorted(comparingInt(PreAssertion::getOrder)).collect(Collectors.toUnmodifiableList());
     }
 
-    public Optional<RuntimeException> assertLegal(State lastState, Move move) {
+    public Optional<RuntimeException> ensureLegal(State lastState, Move move) {
         return preAssertions.stream()
                 .map(preAssertion -> preAssertion.assertLegal(lastState, move))
                 .flatMap(Optional::stream)

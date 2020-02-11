@@ -11,7 +11,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -22,6 +25,11 @@ public class ChessRunner implements CommandLineRunner, ExitCodeGenerator {
     private final GameFactory gameFactory;
     private final InputService inputService;
 
+    private final Map<Integer, Function<String[], Integer>> modes =
+            Map.of(0, args -> interactive(),
+                    1, args -> file(args[0]));
+
+
     @Getter
     private int exitCode;
 
@@ -31,30 +39,19 @@ public class ChessRunner implements CommandLineRunner, ExitCodeGenerator {
     }
 
     private int call(String[] args) {
-        if (args.length != 1) {
-            log.info("usage: chessapp moves_file_path");
-            return ExitCode.ARGUMENT_ERROR.getCode();
-        }
-
-        return loadFileAndPlay(args[0]);
-    }
-
-    private int loadFileAndPlay(String filename) {
-        return inputService.getPath(filename)
-                .map(inputService::getMoves)
-                .map(this::playGame)
+        return Optional.ofNullable(modes.get(args.length).apply(args))
                 .orElseGet(() -> {
-                    log.error("couldn't load the file: " + filename);
-                    return ExitCode.FILE_ERROR.getCode();
+                    log.info("usage: chessapp [moves_file_path]");
+                    return ExitCode.ARGUMENT_ERROR.getCode();
                 });
     }
 
 
-    private int playGame(List<Move> moves) {
-
+    private int playGame(Stream<Move> moves) {
         Game game = gameFactory.newGame();
+        log.info(game.currentState());
 
-        return moves.stream()
+        return moves
                 .map(game::move)
                 .peek(result -> {
                     result.peek(state -> log.info(state.toString()));
@@ -63,5 +60,19 @@ public class ChessRunner implements CommandLineRunner, ExitCodeGenerator {
                 .collect(toUnmodifiableList())
                 .stream()
                 .allMatch(Either::isRight) ? ExitCode.SUCCESS.getCode() : ExitCode.ILLEGAL_MOVE_ERROR.getCode();
+    }
+
+
+    private Integer file(String arg) {
+        return inputService.getMoves(arg)
+                .map(this::playGame)
+                .orElseGet(() -> {
+                    log.error("couldn't load the file: " + arg);
+                    return ExitCode.FILE_ERROR.getCode();
+                });
+    }
+
+    private int interactive() {
+        return playGame(inputService.streamInput());
     }
 }

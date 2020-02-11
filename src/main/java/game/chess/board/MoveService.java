@@ -12,7 +12,7 @@ public class MoveService {
     private final PreAssertionService preAssertionService;
 
     public Either<RuntimeException, Board> move(Move move, State lastState) {
-        return preAssertionService.assertLegal(lastState, move)
+        return preAssertionService.ensureLegal(lastState, move)
                 .<Either<RuntimeException, Board>>map(Either::left)
                 .orElseGet(() -> Either.right(lastState.getBoard().move(move)));
     }

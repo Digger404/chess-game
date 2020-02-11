@@ -49,4 +49,8 @@ public class Game {
     private State getLastState() {
         return Iterables.getLast(history);
     }
+
+    public String currentState() {
+        return getLastState().toString();
+    }
 }
